@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graficar Desigualdades</title>
+<style>
+    canvas {
+        border: 1px solid #000;
+    }
+</style>
+</head>
+<body>
+    <canvas id="plot" width="400" height="400"></canvas>
+
+    <script>
+        // Obtener el contexto del canvas
+        var canvas = document.getElementById('plot');
+        var ctx = canvas.getContext('2d');
+
+        // Función para graficar una desigualdad lineal: ax + by <= c
+        function graficarDesigualdad(a, b, c, color) {
+            ctx.fillStyle = color;
+
+            // Dibujar la región de respuesta
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(canvas.width, 0);
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.lineTo(0, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+
+            // Dibujar la línea correspondiente a la desigualdad
+            if (b !== 0) {
+                ctx.beginPath();
+                ctx.moveTo(0, c / b);
+                ctx.lineTo(canvas.width, (c - a * canvas.width) / b);
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        // Ejemplo: graficar 2x + 3y <= 6 en azul
+        graficarDesigualdad(2, 3, 6, 'rgba(0, 0, 255, 0.5)');
+    </script>
+</body>
+</html>
