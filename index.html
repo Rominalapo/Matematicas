@@ -3,24 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Graficador de Desigualdades</title>
+  <title>Gráfico de una desigualdad</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
+      font-family: Arial, sans-serif;
       margin-top: 20px;
     }
     canvas {
-      border: 1px solid #333;
+      border: 1px solid #000;
       background-color: #fff;
     }
   </style>
 </head>
 <body>
 
-  <h2>Gráfico de desigualdades lineales</h2>
+  <h2>Graficar: x + y ≤ 5</h2>
   <canvas id="grafico" width="600" height="600"></canvas>
 
   <script>
@@ -29,11 +29,16 @@
     const width = canvas.width;
     const height = canvas.height;
 
-    // Escala (pixeles por unidad)
-    const escala = 40;
+    const escala = 40; // píxeles por unidad
     const origen = { x: width / 2, y: height / 2 };
 
-    // Dibuja los ejes cartesianos
+    function aPixeles(x, y) {
+      return {
+        x: origen.x + x * escala,
+        y: origen.y - y * escala
+      };
+    }
+
     function dibujarEjes() {
       ctx.strokeStyle = "#000";
       ctx.lineWidth = 1;
@@ -50,8 +55,8 @@
       ctx.lineTo(origen.x, height);
       ctx.stroke();
 
-      // Líneas de cuadrícula
-      ctx.strokeStyle = "#ccc";
+      // Cuadrícula
+      ctx.strokeStyle = "#ddd";
       for (let x = origen.x % escala; x < width; x += escala) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
@@ -66,52 +71,41 @@
       }
     }
 
-    // Convierte coordenadas cartesianas a píxeles
-    function aPixeles(x, y) {
-      return {
-        x: origen.x + x * escala,
-        y: origen.y - y * escala
-      };
-    }
+    function graficarDesigualdad(a, b, c, color = 'rgba(0, 100, 255, 0.3)') {
+      // Dibuja la línea de la desigualdad: ax + by = c
+      const x1 = -width / (2 * escala);
+      const x2 = width / (2 * escala);
+      const y1 = (c - a * x1) / b;
+      const y2 = (c - a * x2) / b;
 
-    // Dibuja una desigualdad de la forma ax + by ≤ c
-    function dibujarDesigualdad(a, b, c, color = 'rgba(0, 100, 255, 0.3)') {
+      const p1 = aPixeles(x1, y1);
+      const p2 = aPixeles(x2, y2);
+
+      // Dibuja la región que cumple ax + by ≤ c
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+
+      if (b !== 0) {
+        // Rellenar hacia abajo
+        const inf1 = aPixeles(x2, -height);
+        const inf2 = aPixeles(x1, -height);
+        ctx.lineTo(inf1.x, inf1.y);
+        ctx.lineTo(inf2.x, inf2.y);
+      } else {
+        // Desigualdad vertical (a ≠ 0, b = 0)
+        const top1 = aPixeles(c / a, height);
+        const bottom1 = aPixeles(c / a, -height);
+        ctx.moveTo(top1.x, top1.y);
+        ctx.lineTo(bottom1.x, bottom1.y);
+      }
+
+      ctx.closePath();
       ctx.fillStyle = color;
+      ctx.fill();
+
+      // Dibuja la línea de frontera
       ctx.beginPath();
-
-      const puntos = [];
-
-      // Genera puntos en los extremos del lienzo
-      for (let x = -width / (2 * escala); x <= width / (2 * escala); x += 0.5) {
-        const y = (c - a * x) / b;
-        if (!isNaN(y) && isFinite(y)) {
-          puntos.push({ x, y });
-        }
-      }
-
-      // Dibuja la región de la desigualdad
-      const region = puntos.filter(p => a * p.x + b * p.y <= c);
-      if (region.length > 0) {
-        const inicio = aPixeles(region[0].x, region[0].y);
-        ctx.moveTo(inicio.x, inicio.y);
-        for (let p of region) {
-          const pixel = aPixeles(p.x, p.y);
-          ctx.lineTo(pixel.x, pixel.y);
-        }
-
-        // Rellenar hacia abajo si b > 0, hacia arriba si b < 0
-        const extremo1 = aPixeles(region[0].x, -height / escala);
-        const extremo2 = aPixeles(region[region.length - 1].x, -height / escala);
-        ctx.lineTo(extremo2.x, extremo2.y);
-        ctx.lineTo(extremo1.x, extremo1.y);
-        ctx.closePath();
-        ctx.fill();
-      }
-
-      // Dibuja la línea de la desigualdad
-      ctx.beginPath();
-      const p1 = aPixeles(-width / (2 * escala), (c - a * (-width / (2 * escala))) / b);
-      const p2 = aPixeles(width / (2 * escala), (c - a * (width / (2 * escala))) / b);
       ctx.moveTo(p1.x, p1.y);
       ctx.lineTo(p2.x, p2.y);
       ctx.strokeStyle = '#003366';
@@ -119,16 +113,10 @@
       ctx.stroke();
     }
 
-    // Inicializa el gráfico
+    // Inicializar gráfico
     function iniciar() {
       dibujarEjes();
-
-      // Desigualdades: puedes cambiar o añadir más
-      // Forma: a, b, c, color (opcional)
-      dibujarDesigualdad(1, 1, 5, 'rgba(0, 200, 0, 0.3)');   // x + y ≤ 5
-      dibujarDesigualdad(-1, 1, 2, 'rgba(255, 0, 0, 0.3)');  // -x + y ≤ 2
-      dibujarDesigualdad(1, 0, 4, 'rgba(0, 0, 255, 0.3)');   // x ≤ 4
-      dibujarDesigualdad(0, 1, 3, 'rgba(255, 165, 0, 0.3)'); // y ≤ 3
+      graficarDesigualdad(1, 1, 5); // x + y ≤ 5
     }
 
     iniciar();
