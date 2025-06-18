@@ -3,123 +3,82 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Gráfico de una desigualdad</title>
+  <title>Desigualdad: y ≤ 2x + 5</title>
   <style>
     body {
       display: flex;
       flex-direction: column;
       align-items: center;
       font-family: Arial, sans-serif;
-      margin-top: 20px;
     }
     canvas {
       border: 1px solid #000;
       background-color: #fff;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
 
-  <h2>Graficar: x + y ≤ 5</h2>
-  <canvas id="grafico" width="600" height="600"></canvas>
+  <h2>Desigualdad: y ≤ 2x + 5</h2>
+  <canvas id="grafico" width="500" height="500"></canvas>
 
   <script>
     const canvas = document.getElementById('grafico');
     const ctx = canvas.getContext('2d');
+
     const width = canvas.width;
     const height = canvas.height;
+    const escala = 20;
 
-    const escala = 40; // píxeles por unidad
-    const origen = { x: width / 2, y: height / 2 };
+    const origen = { x: 0, y: height };
 
-    function aPixeles(x, y) {
-      return {
-        x: origen.x + x * escala,
-        y: origen.y - y * escala
-      };
-    }
-
+    // Dibuja los ejes
     function dibujarEjes() {
       ctx.strokeStyle = "#000";
-      ctx.lineWidth = 1;
-
-      // Eje X
       ctx.beginPath();
-      ctx.moveTo(0, origen.y);
-      ctx.lineTo(width, origen.y);
+      ctx.moveTo(0, height);
+      ctx.lineTo(0, 0);
+      ctx.moveTo(0, height);
+      ctx.lineTo(width, height);
       ctx.stroke();
-
-      // Eje Y
-      ctx.beginPath();
-      ctx.moveTo(origen.x, 0);
-      ctx.lineTo(origen.x, height);
-      ctx.stroke();
-
-      // Cuadrícula
-      ctx.strokeStyle = "#ddd";
-      for (let x = origen.x % escala; x < width; x += escala) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
-      }
-      for (let y = origen.y % escala; y < height; y += escala) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
-        ctx.stroke();
-      }
     }
 
-    function graficarDesigualdad(a, b, c, color = 'rgba(0, 100, 255, 0.3)') {
-      // Dibuja la línea de la desigualdad: ax + by = c
-      const x1 = -width / (2 * escala);
-      const x2 = width / (2 * escala);
-      const y1 = (c - a * x1) / b;
-      const y2 = (c - a * x2) / b;
-
-      const p1 = aPixeles(x1, y1);
-      const p2 = aPixeles(x2, y2);
-
-      // Dibuja la región que cumple ax + by ≤ c
+    // Dibuja la desigualdad y ≤ 2x + 5
+    function graficarDesigualdad() {
       ctx.beginPath();
-      ctx.moveTo(p1.x, p1.y);
-      ctx.lineTo(p2.x, p2.y);
+      ctx.moveTo(0, height - (2 * 0 + 5) * escala);
 
-      if (b !== 0) {
-        // Rellenar hacia abajo
-        const inf1 = aPixeles(x2, -height);
-        const inf2 = aPixeles(x1, -height);
-        ctx.lineTo(inf1.x, inf1.y);
-        ctx.lineTo(inf2.x, inf2.y);
-      } else {
-        // Desigualdad vertical (a ≠ 0, b = 0)
-        const top1 = aPixeles(c / a, height);
-        const bottom1 = aPixeles(c / a, -height);
-        ctx.moveTo(top1.x, top1.y);
-        ctx.lineTo(bottom1.x, bottom1.y);
+      for (let x = 0; x <= 10; x++) {
+        const y = 2 * x + 5;
+        const px = x * escala;
+        const py = height - y * escala;
+        ctx.lineTo(px, py);
       }
 
+      // Área debajo de la línea
+      ctx.lineTo(10 * escala, height);
+      ctx.lineTo(0, height);
       ctx.closePath();
-      ctx.fillStyle = color;
+      ctx.fillStyle = "rgba(255, 0, 255, 0.3)"; // fucsia semitransparente
       ctx.fill();
 
-      // Dibuja la línea de frontera
+      // Línea fucsia
       ctx.beginPath();
-      ctx.moveTo(p1.x, p1.y);
-      ctx.lineTo(p2.x, p2.y);
-      ctx.strokeStyle = '#003366';
+      for (let x = 0; x <= 10; x++) {
+        const y = 2 * x + 5;
+        const px = x * escala;
+        const py = height - y * escala;
+        if (x === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.strokeStyle = "fuchsia";
       ctx.lineWidth = 2;
       ctx.stroke();
     }
 
-    // Inicializar gráfico
-    function iniciar() {
-      dibujarEjes();
-      graficarDesigualdad(1, 1, 5); // x + y ≤ 5
-    }
-
-    iniciar();
+    dibujarEjes();
+    graficarDesigualdad();
   </script>
 </body>
 </html>
